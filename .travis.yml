@@ -1,6 +1,10 @@
 language: python
 python:
   - "3.5"
+  
+install:
+  - pip install --upgrade pip
+  - pip install requests
 
 # command to run test
 script: nosetests NGS_api_testing.py

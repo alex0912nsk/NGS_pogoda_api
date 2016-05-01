@@ -58,27 +58,36 @@ class TestServerFunctionality(unittest.TestCase):
                          "города не найдены")
 
     parametrs = lambda: (
-        ('http://pogoda.ngs.ru/api/v1/cities', 'id', 'int', 3, 3, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'alias', 'str', 3, 12, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'region', 'int', 1, 3, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'title', 'str', 3, 12, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'title_dative', 'str', 3, 12, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'name', 'str', 3, 10, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'title_prepositional', 'str', 3, 12, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'timezone', 'str', 3, 20, ''),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'url', 'str', 20, 40, 'http://pogoda.ngs'),
-        ('http://pogoda.ngs.ru/api/v1/cities', 'mobile_url', 'str', 17, 30, 'm.pogoda.ngs'),)
+        ('id', 'int', 3, 3, ''),
+        ('alias', 'str', 3, 19, ''),
+        ('region', 'int', 1, 4, ''),
+        ('title', 'str', 2, 24, ''),
+        ('title_dative', 'str', 2, 26, ''),
+        ('name', 'str', 3, 23, ''),
+        ('title_prepositional', 'str', 2, 26, ''),
+        ('timezone', 'str', 3, 20, ''),
+        ('url', 'str', 19, 47, 'http://pogoda.'),
+        ('mobile_url', 'str', 14, 42, 'm.pogoda.'))
 
     @data_provider(parametrs)
-    def test_parapetr_cities(self, url, parametr, value, lengthmin, lengthmax, startstr):
-        parametrval = requests.get(url).json()['cities'][0][parametr]
-        if value == 'int':
-            self.assertTrue(str(parametrval).isdigit)
-        elif value == 'str':
-            self.assertTrue(parametr.isalpha)
-        self.assertGreaterEqual(len(str(parametrval)), lengthmin)
-        self.assertLessEqual(len(str(parametrval)), lengthmax)
-        self.assertTrue(str(parametrval).startswith(startstr))
+    def test_parapetr_cities(self, parametr, value, lengthmin, lengthmax, startstr):
+        global parametrval, i
+        url = 'http://pogoda.ngs.ru/api/v1/cities'
+        count = requests.get(url).json()['metadata']['resultset']['count']
+        try:
+            for i in range(0, count):
+                parametrval = requests.get(url).json()['cities'][i][parametr]
+                if value == 'int':
+                    self.assertTrue(str(parametrval).isdigit)
+                elif value == 'str':
+                    self.assertTrue(parametr.isalpha)
+                self.assertGreaterEqual(len(str(parametrval)), lengthmin)
+                self.assertLessEqual(len(str(parametrval)), lengthmax)
+                self.assertTrue(str(parametrval).startswith(startstr))
+        except:
+            print('№' + str(i) + '(' + requests.get(url).json()['cities'][i]['title'] + ' - ' + parametr + ':' + str(
+                parametrval) + ')')
+            self.fail('test_parametr_cities is failed')
 
 
 if __name__ == '__main__':
